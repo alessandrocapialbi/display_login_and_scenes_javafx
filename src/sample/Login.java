@@ -4,11 +4,8 @@ import javafx.application.Application;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
@@ -17,9 +14,9 @@ import javafx.stage.Stage;
 
 public class Login extends Application {
 
-    static boolean reply;
-    static boolean validUsername;
-    static Alert alert;
+    private static boolean reply;
+    private static boolean validUsername;
+    private static Alert alert;
 
     public static void displayLogin(String title) {
 
@@ -51,15 +48,21 @@ public class Login extends Application {
 
         Label password = new Label("Password");
         GridPane.setConstraints(password, 0, 1);
-        TextField passInput = new TextField();
+        PasswordField passInput = new PasswordField();
         GridPane.setConstraints(passInput, 1, 1);
         passInput.setPromptText("Min. 8 characters");
+
+
+        Label specPw = new Label("Password must contains at least\n"+"one uppercase character, one special character\n" +
+                "and min. 8 total characters.");
+        GridPane.setConstraints(specPw, 2, 1);
 
         Button loginButt = new Button("Log in");
         GridPane.setConstraints(loginButt, 1, 2);
 
         loginButt.setOnAction(e -> {
-            if (validUsername) {
+
+            if (validUsername && validatePw(passInput.getText())) {
                 alert = new Alert(AlertType.CONFIRMATION);
                 alert.setTitle("Validation successful");
                 alert.setHeaderText("All right!");
@@ -73,9 +76,11 @@ public class Login extends Application {
             
             alert.show();
 
+
+
         });
 
-        grid.getChildren().addAll(name, password, userInput, passInput, loginButt);
+        grid.getChildren().addAll(name, password, userInput, passInput, specPw, loginButt);
 
         scene = new Scene(grid, 600, 300);
         login.setScene(scene);
@@ -83,24 +88,52 @@ public class Login extends Application {
 
     }
 
-    static boolean isString(TextField nameInput, String message) { //It checks if the username does not contains digits.
+    private static boolean isString(TextField nameInput, String s) { //It checks if the username does not contains digits.
 
         int digits = 0;
         boolean valid = false;
 
-        for (char c : message.toCharArray()) {
-            if (Character.isDigit(c)) {
-                nameInput.setStyle("-fx-text-inner-color: red;");
-                digits++;
+        if (s != null) {
+            for (char c : s.toCharArray()) {
+                if (Character.isDigit(c)) {
+                    nameInput.setStyle("-fx-text-inner-color: red;");
+                    digits++;
+                }
+            }
+
+            if (digits == 0) {
+                nameInput.setStyle("-fx-text-inner-color: black;");
+                valid = true;
             }
         }
 
-        if (digits == 0) {
-            nameInput.setStyle("-fx-text-inner-color: black;");
-            valid = true;
+        return valid;
+
+    }
+
+
+    private static boolean validatePw(String s) { /*Password must contains at least one uppercase character, one special character
+    and min. 8 total characters.*/
+
+        boolean valid = false;
+        int isUppercase = 0, isSpecial = 0;
+
+
+        if (s != null && s.length() >= 8) {
+            for (char c : s.toCharArray()) {
+                if (Character.isUpperCase(c))
+                    isUppercase++;
+                if (!Character.isDigit(c) && !Character.isLetter(c)) {
+                    ++isSpecial;
+                }
+            }
+
+            if (isUppercase > 0 && isSpecial > 0)
+                valid = true;
         }
 
         return valid;
+
 
     }
 
